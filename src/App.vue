@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, query, orderBy } from "firebase/firestore";
 import { db } from '@/firebase';
 const todos = ref([
 //  { 
@@ -15,9 +15,10 @@ const todos = ref([
 //   },
 ]);
 const todosCollectionRef = collection(db, "todo");
+const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"));
 
 onMounted(() => {
-onSnapshot(todosCollectionRef, (querySnapshot) => {
+onSnapshot(todosCollectionQuery, (querySnapshot) => {
   const fbTodos = [];
   querySnapshot.forEach((doc) => {
     const todo={
@@ -31,12 +32,14 @@ onSnapshot(todosCollectionRef, (querySnapshot) => {
 });
 });
 
+
 const newtodoContent = ref("");
 
 const addToDo=()=>{
   addDoc(todosCollectionRef, {
   content: newtodoContent.value,
   done: false,
+  date:Date.now(),
 });
   newtodoContent.value = "";
 };
